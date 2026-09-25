@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "21960939027",
+    "firebase_url": "https://unican-33d3b-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "unican-33d3b",
+    "storage_bucket": "unican-33d3b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21960939027:android:1f067c1bd18426b869d1e6",
+        "android_client_info": {
+          "package_name": "com.example.unican"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAR-HpHeBAxZkE-hf4wa35AAvlj9s0DST4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
