@@ -1,30 +1,42 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:unican/main.dart';
+import 'package:unican/models/verification_case.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  test('buildUntracedRemarks includes address and reason', () {
+    final c = VerificationCase(address: '123 Test Street')
+      ..reasonOfUntraced = 'Address is incomplete'
+      ..requireToTrace = 'Required landmark'
+      ..callingResponse = 'Number was not reachable'
+      ..lastLocation = 'Unknown';
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    final remarks = c.buildUntracedRemarks();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(remarks.contains('123 Test Street'), isTrue);
+    expect(remarks.contains('Address is incomplete'), isTrue);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('buildConfirmedRemarks includes neighbor confirmation', () {
+    final c = VerificationCase(address: '123 Test Street')
+      ..neighbor1 = 'Neighbor A'
+      ..neighbor2 = 'Neighbor B'
+      ..metPersonName = 'Met Person'
+      ..relationWithApplicant = 'Self'
+      ..residenceConfirmation = 'Residing here'
+      ..tenureOfResidence = '2 years'
+      ..ownershipOfResidence = 'Owned'
+      ..buildingDescription = 'Flat'
+      ..totalFloors = 'Ground to 2nd'
+      ..applicantFloor = '1st'
+      ..landArea = '100'
+      ..localityOfAddress = 'Middle class'
+      ..documentShown = 'Aadhar card'
+      ..totalFamilyMembers = '4'
+      ..numberOfEarners = '2';
+
+    final remarks = c.buildConfirmedRemarks();
+
+    expect(remarks.contains('Neighbor A'), isTrue);
+    expect(remarks.contains('Neighbor B'), isTrue);
   });
 }

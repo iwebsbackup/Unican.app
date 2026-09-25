@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../models/verification_case.dart';
+import '../models/verification_case.dart';
 import 'verification_widgets.dart';
-import 'verification_untraced_screen.dart';
-import 'verification_neighbor_screen.dart';
+import 'verification_media_screen.dart';
 
 class VerificationAddressScreen extends StatefulWidget {
   const VerificationAddressScreen({super.key});
@@ -34,9 +33,7 @@ class _VerificationAddressScreenState
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => _case.traced!
-            ? VerificationNeighborScreen(verificationCase: _case)
-            : VerificationUntracedScreen(verificationCase: _case),
+        builder: (_) => VerificationMediaScreen(verificationCase: _case),
       ),
     );
   }

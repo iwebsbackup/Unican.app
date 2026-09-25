@@ -23,10 +23,14 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_index]),
         centerTitle: false,
+        backgroundColor: theme.colorScheme.surface,
+        scrolledUnderElevation: 0,
       ),
       body: IndexedStack(
         index: _index,
@@ -35,6 +39,9 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
+        backgroundColor: theme.colorScheme.surface,
+        indicatorColor: theme.colorScheme.primary.withValues(alpha: 0.15),
+        elevation: 3,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),

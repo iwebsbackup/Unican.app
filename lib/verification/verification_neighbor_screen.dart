@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/verification_case.dart';
+import '../models/verification_case.dart';
 import 'verification_widgets.dart';
 import 'verification_confirmed_screen.dart';
 import 'verification_not_confirmed_screen.dart';

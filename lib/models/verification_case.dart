@@ -1,7 +1,15 @@
 /// Holds all data collected across the residence verification flow.
 /// Passed by reference between screens; each screen fills in its part.
 class VerificationCase {
+  final String id = DateTime.now().microsecondsSinceEpoch.toString();
+  final DateTime createdAt = DateTime.now();
+  bool isFavorite = false;
+
   String address;
+
+  double? latitude;
+  double? longitude;
+  final List<String> photoPaths = [];
 
   bool? traced; // true = Traced, false = Untraced
 
@@ -50,6 +58,13 @@ class VerificationCase {
 
   VerificationCase({required this.address});
 
+  String get geoTagText => (latitude == null || longitude == null)
+      ? 'Not captured'
+      : '${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)}';
+
+  String get _mediaSuffix =>
+      '\n\nGeo-tag: $geoTagText. Photos attached: ${photoPaths.length}.';
+
   String buildConfirmedRemarks() {
     return 'Visited at given address ($address) we met with met person name '
         '($relationWithApplicant), who confirmed that applicant is '
@@ -62,7 +77,7 @@ class VerificationCase {
         'shown by met person: $documentShown. Total family members: '
         '$totalFamilyMembers, of which $numberOfEarners are earners.\n\n'
         'Neighbor confirmation: We met with $neighbor1 and $neighbor2, both '
-        'confirmed the applicant\'s name and residence.';
+        'confirmed the applicant\'s name and residence.$_mediaSuffix';
   }
 
   String buildNotConfirmedRemarks() {
@@ -72,13 +87,13 @@ class VerificationCase {
         'and premises exist at $addressFloorB2 with an area approx. '
         '$landAreaB2 in $localityB2 locality.\n\n'
         'Neighbor confirmation: We met with $neighbor1 and $neighbor2, both '
-        'stated they could not confirm the applicant regarding the address.';
+        'stated they could not confirm the applicant regarding the address.$_mediaSuffix';
   }
 
   String buildUntracedRemarks() {
     return 'Visited at given address ($address) but the address could not '
         'be traced. Reason: $reasonOfUntraced. Additional information '
         'required: $requireToTrace. Calling response: $callingResponse. '
-        'Last known location: $lastLocation.';
+        'Last known location: $lastLocation.$_mediaSuffix';
   }
 }

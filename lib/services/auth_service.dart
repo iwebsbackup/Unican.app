@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'app_settings.dart';
 import 'database_service.dart';
 import 'device_service.dart';
 
@@ -36,6 +37,8 @@ class AuthService {
           message: 'This account is registered on a different device.',
         );
       }
+
+      AppSettings.instance.displayName.value = user.displayName ?? '';
     }
     return user;
   }
@@ -60,8 +63,20 @@ class AuthService {
         email: email,
         deviceId: deviceId,
       );
+      AppSettings.instance.displayName.value = name;
     }
     return user;
+  }
+
+  Future<void> sendPasswordReset(String email) async {
+    await _auth.sendPasswordResetEmail(email: email);
+  }
+
+  Future<void> updateName(String name) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    await user.updateDisplayName(name);
+    AppSettings.instance.displayName.value = name;
   }
 
   Future<void> logout() async {
