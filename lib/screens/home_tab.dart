@@ -53,7 +53,11 @@ class HomeTab extends StatelessWidget {
                           if (pending == 0) return const SizedBox.shrink();
                           return Padding(
                             padding: const EdgeInsets.only(top: 14),
-                            child: _PendingBanner(pending: pending),
+                            child: ValueListenableBuilder<bool>(
+                              valueListenable: SyncService.instance.online,
+                              builder: (context, online, child) =>
+                                  _PendingBanner(pending: pending, online: online),
+                            ),
                           );
                         },
                       ),
@@ -196,8 +200,9 @@ class _StatCard extends StatelessWidget {
 
 class _PendingBanner extends StatelessWidget {
   final int pending;
+  final bool online;
 
-  const _PendingBanner({required this.pending});
+  const _PendingBanner({required this.pending, required this.online});
 
   @override
   Widget build(BuildContext context) {
@@ -211,12 +216,18 @@ class _PendingBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.cloud_off_rounded, color: Colors.orange, size: 20),
+          Icon(
+            online ? Icons.cloud_upload_rounded : Icons.cloud_off_rounded,
+            color: Colors.orange,
+            size: 20,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              '$pending verification${pending == 1 ? '' : 's'} pending sync. '
-              'Will upload automatically when online.',
+              online
+                  ? 'Submitting $pending verification${pending == 1 ? '' : 's'}...'
+                  : '$pending verification${pending == 1 ? '' : 's'} pending sync. '
+                      'Will upload automatically when online.',
               style: theme.textTheme.bodySmall,
             ),
           ),
