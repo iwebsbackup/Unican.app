@@ -8,9 +8,9 @@ import '../../services/media_service.dart';
 import 'geotag_data.dart';
 import 'geotag_overlay.dart';
 
-/// Shows the freshly captured photo with the geo-tag badge composited on top.
-/// On save it rasterises the [RepaintBoundary] and returns the saved PNG path
-/// through `Navigator.pop`; on discard it returns `null`.
+/// Composites the geo-tag badge onto the freshly captured photo and saves it
+/// automatically (no manual Save step). Returns the saved PNG path through
+/// `Navigator.pop`; backing out returns `null`.
 class GeoTagCaptureScreen extends StatefulWidget {
   final String rawImagePath;
   final GeoTagData data;
@@ -36,6 +36,7 @@ class _GeoTagCaptureScreenState extends State<GeoTagCaptureScreen> {
   ui.Image? _image;
   bool _loading = true;
   bool _saving = false;
+  bool _failed = false;
 
   double get _logicalHeight {
     final image = _image;
@@ -68,6 +69,8 @@ class _GeoTagCaptureScreenState extends State<GeoTagCaptureScreen> {
         _image = frame.image;
         _loading = false;
       });
+      // Auto-save once the composition has been laid out.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _save());
     } catch (_) {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -76,7 +79,10 @@ class _GeoTagCaptureScreenState extends State<GeoTagCaptureScreen> {
 
   Future<void> _save() async {
     if (_saving || _image == null) return;
-    setState(() => _saving = true);
+    setState(() {
+      _saving = true;
+      _failed = false;
+    });
     try {
       await WidgetsBinding.instance.endOfFrame;
       final boundary = _boundaryKey.currentContext?.findRenderObject()
@@ -84,7 +90,7 @@ class _GeoTagCaptureScreenState extends State<GeoTagCaptureScreen> {
       if (boundary == null) throw StateError('Boundary unavailable');
 
       final ratio =
-          (_image!.width / _logicalWidth).clamp(2.0, 4.0).toDouble();
+          (_image!.width / _logicalWidth).clamp(1.5, 2.5).toDouble();
       final captured = await boundary.toImage(pixelRatio: ratio);
       final byteData = await captured.toByteData(
         format: ui.ImageByteFormat.png,
@@ -103,7 +109,10 @@ class _GeoTagCaptureScreenState extends State<GeoTagCaptureScreen> {
       Navigator.of(context).pop(path);
     } catch (_) {
       if (!mounted) return;
-      setState(() => _saving = false);
+      setState(() {
+        _saving = false;
+        _failed = true;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not save the geo-tagged photo.')),
       );
@@ -119,25 +128,16 @@ class _GeoTagCaptureScreenState extends State<GeoTagCaptureScreen> {
         foregroundColor: Colors.white,
         title: const Text('Geo-Tagged Photo'),
         actions: [
-          if (_image != null)
+          if (_failed && _image != null)
             TextButton(
-              onPressed: _saving ? null : _save,
-              child: _saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Text(
-                      'Save',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+              onPressed: _save,
+              child: const Text(
+                'Retry',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
         ],
       ),
@@ -150,14 +150,34 @@ class _GeoTagCaptureScreenState extends State<GeoTagCaptureScreen> {
                     style: TextStyle(color: Colors.white70),
                   ),
                 )
-              : Center(
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    child: RepaintBoundary(
-                      key: _boundaryKey,
-                      child: _composition(_image!),
+              : Stack(
+                  children: [
+                    Center(
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: RepaintBoundary(
+                          key: _boundaryKey,
+                          child: _composition(_image!),
+                        ),
+                      ),
                     ),
-                  ),
+                    if (_saving)
+                      const Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 24,
+                        child: Center(
+                          child: SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
     );
   }

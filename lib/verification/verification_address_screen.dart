@@ -142,7 +142,11 @@ class _VerificationAddressScreenState
             label: 'Was the address traced?',
             options: const ['Traced', 'Untraced'],
             value: _tracedChoice,
-            onChanged: (v) => setState(() => _tracedChoice = v),
+            onChanged: (v) {
+              setState(() => _tracedChoice = v);
+              // Traced → jump to next step automatically.
+              if (v == 'Traced') _next();
+            },
           ),
         ],
       ),

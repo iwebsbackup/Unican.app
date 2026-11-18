@@ -90,6 +90,14 @@ class AssignedAddress {
   }
 
   bool get isOpen => !isClosed;
+
+  /// NEW = assigned within the last 24 hours. Anything older is OLD.
+  /// Returns null when the server sent no assignment/creation date.
+  bool? get isNewCase {
+    final at = assignedAt ?? createdAt;
+    if (at == null) return null;
+    return DateTime.now().difference(at) < const Duration(hours: 24);
+  }
 }
 
 String _asString(dynamic value) => value?.toString() ?? '';

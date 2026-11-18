@@ -130,15 +130,16 @@ class _StatsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: _StatCard(
-            icon: Icons.assignment_outlined,
-            label: 'Received',
-            count: received,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        const SizedBox(width: 12),
+        // Received block commented out
+        // Expanded(
+        //   child: _StatCard(
+        //     icon: Icons.assignment_outlined,
+        //     label: 'Received',
+        //     count: received,
+        //     color: Theme.of(context).colorScheme.primary,
+        //   ),
+        // ),
+        // const SizedBox(width: 12),
         Expanded(
           child: _StatCard(
             icon: Icons.pending_actions_rounded,

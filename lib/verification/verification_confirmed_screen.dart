@@ -112,7 +112,7 @@ class _VerificationConfirmedScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           VLabeledField(label: 'Met Person Name', controller: _metPersonCtrl),
-          VDropdown(
+          VOtherDropdown(
             label: 'Relation with the Applicant',
             options: const [
               'Self',
@@ -127,14 +127,14 @@ class _VerificationConfirmedScreenState
             value: _relation,
             onChanged: (v) => setState(() => _relation = v),
           ),
-          VDropdown(
+          VOtherDropdown(
             label: 'Applicant Residence Confirmation',
             options: const ['Residing here', 'Not residing here', 'Any other'],
             value: _residenceConfirmation,
             onChanged: (v) => setState(() => _residenceConfirmation = v),
           ),
           VLabeledField(label: 'Tenure of Residence', controller: _tenureCtrl),
-          VDropdown(
+          VOtherDropdown(
             label: 'Ownership of Residence',
             options: const [
               'Owned',
@@ -152,7 +152,7 @@ class _VerificationConfirmedScreenState
             VLabeledField(label: 'Rent Amount', controller: _rentCtrl),
             VLabeledField(label: 'Landlord Name', controller: _landlordCtrl),
           ],
-          VDropdown(
+          VOtherDropdown(
             label: 'Building Description',
             options: const [
               'Flat',
@@ -165,7 +165,7 @@ class _VerificationConfirmedScreenState
             value: _building,
             onChanged: (v) => setState(() => _building = v),
           ),
-          VDropdown(
+          VOtherDropdown(
             label: 'Total Floors',
             options: const [
               'Only ground floor',
@@ -178,14 +178,14 @@ class _VerificationConfirmedScreenState
             value: _totalFloors,
             onChanged: (v) => setState(() => _totalFloors = v),
           ),
-          VDropdown(
+          VOtherDropdown(
             label: 'Applicant Residing on Which Floor',
             options: const ['Ground', '1st', '2nd', '3rd', '4th', 'Any other'],
             value: _applicantFloor,
             onChanged: (v) => setState(() => _applicantFloor = v),
           ),
           VLabeledField(label: 'Land Area', controller: _landAreaCtrl),
-          VDropdown(
+          VOtherDropdown(
             label: 'Locality of Address',
             options: const [
               'Middle class',
@@ -199,19 +199,19 @@ class _VerificationConfirmedScreenState
             value: _locality,
             onChanged: (v) => setState(() => _locality = v),
           ),
-          VDropdown(
+          VOtherDropdown(
             label: 'Document Shown by Met Person',
             options: const ['PAN card', 'Aadhar card', 'E-bill', 'Any other'],
             value: _document,
             onChanged: (v) => setState(() => _document = v),
           ),
-          VDropdown(
+          VOtherDropdown(
             label: 'Total Family Members',
             options: const ['1', '2', '3', '4', 'Joint family', 'Any other'],
             value: _familyMembers,
             onChanged: (v) => setState(() => _familyMembers = v),
           ),
-          VDropdown(
+          VOtherDropdown(
             label: 'Number of Earners',
             options: const ['1', '2', '3', '4', 'Any other'],
             value: _earners,

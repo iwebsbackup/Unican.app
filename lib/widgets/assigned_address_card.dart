@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/assigned_address.dart';
+import '../services/verification_store.dart';
 import '../theme/app_theme.dart';
 
 /// Tappable card summarising an assigned verification address. Shared by the
@@ -18,6 +19,9 @@ class AssignedAddressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // A case already started (saved draft) is always OLD.
+    final started = VerificationStore.instance.getDraft(item.id) != null;
+    final isNew = started ? false : item.isNewCase;
     return Material(
       color: theme.colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(16),
@@ -66,6 +70,7 @@ class AssignedAddressCard extends StatelessWidget {
                       spacing: 8,
                       runSpacing: 6,
                       children: [
+                        if (isNew != null) _AgeBadge(isNew: isNew),
                         if (item.caseId.isNotEmpty) _Chip(label: item.caseId),
                         if (item.verificationType.isNotEmpty)
                           _Chip(label: item.verificationType),
@@ -114,6 +119,33 @@ class _Chip extends StatelessWidget {
         style: theme.textTheme.labelSmall?.copyWith(
           color: highlight ? theme.colorScheme.error : AppColors.primary,
           fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _AgeBadge extends StatelessWidget {
+  final bool isNew;
+
+  const _AgeBadge({required this.isNew});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = isNew ? Colors.green.shade700 : Colors.orange.shade800;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        isNew ? 'NEW' : 'OLD',
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.5,
         ),
       ),
     );

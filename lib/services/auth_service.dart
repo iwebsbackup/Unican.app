@@ -12,6 +12,17 @@ import 'verification_store.dart';
 /// Staff accounts are created from the admin panel (Auth + RTDB `staff/{uid}`).
 /// App has NO register. Login only.
 class AuthService {
+  /// Roles allowed to log in to the mobile app.
+  /// `staff` = old staff, `field_executive` = created via admin CreateStaff page.
+  static const Set<String> _allowedRoles = {'staff', 'field_executive'};
+
+  static bool _isAppStaff(Map<String, dynamic>? staff) {
+    if (staff == null) return false;
+    final role = (staff['role'] as String?)?.trim().toLowerCase();
+    final userType = (staff['user_type'] as String?)?.trim().toLowerCase();
+    return _allowedRoles.contains(role) || _allowedRoles.contains(userType);
+  }
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final DatabaseService _db = DatabaseService();
   final DeviceService _deviceService = DeviceService();
@@ -21,7 +32,7 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
 
   /// Sign in with admin-set email/password, then confirm the uid exists
-  /// under `staff/` in RTDB with role == staff. Else sign out + throw.
+  /// under `staff/` in RTDB with role staff / field_executive. Else sign out + throw.
   Future<User?> login({
     required String email,
     required String password,
@@ -45,7 +56,7 @@ class AuthService {
       );
     }
 
-    if (staff == null || staff['role'] != 'staff') {
+    if (staff == null || !_isAppStaff(staff)) {
       await _auth.signOut();
       throw FirebaseAuthException(
         code: 'not-staff',
@@ -111,7 +122,7 @@ class AuthService {
       return null;
     }
 
-    if (staff == null || staff['role'] != 'staff') {
+    if (staff == null || !_isAppStaff(staff)) {
       await logout();
       return 'This account is not registered as staff.';
     }

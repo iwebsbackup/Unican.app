@@ -69,7 +69,7 @@ class _VerificationUntracedScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VDropdown(
+          VOtherDropdown(
             label: 'Reason of Untraced',
             options: const [
               'Address is incomplete',
@@ -80,7 +80,7 @@ class _VerificationUntracedScreenState
             value: _reason,
             onChanged: (v) => setState(() => _reason = v),
           ),
-          VDropdown(
+          VOtherDropdown(
             label: 'Require to Trace',
             options: const [
               'Required street number',
@@ -90,7 +90,7 @@ class _VerificationUntracedScreenState
             value: _requireToTrace,
             onChanged: (v) => setState(() => _requireToTrace = v),
           ),
-          VDropdown(
+          VOtherDropdown(
             label: 'Calling Response',
             options: const [
               'Did not pick the call',

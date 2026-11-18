@@ -244,3 +244,122 @@ class VStepScaffold extends StatelessWidget {
     );
   }
 }
+
+/// Dropdown whose "Any other" choice reveals a text box. [onChanged] always
+/// receives the final value: the dropdown option, or the typed text when
+/// "Any other" is selected (falls back to "Any other" while the box is empty).
+/// A saved value that is not one of [options] is restored as "Any other" +
+/// its text, so resumed drafts keep what the user typed.
+class VOtherDropdown extends StatefulWidget {
+  final String label;
+  final List<String> options;
+  final String? value;
+  final ValueChanged<String> onChanged;
+
+  const VOtherDropdown({
+    super.key,
+    required this.label,
+    required this.options,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  State<VOtherDropdown> createState() => _VOtherDropdownState();
+}
+
+class _VOtherDropdownState extends State<VOtherDropdown> {
+  static const String _other = 'Any other';
+
+  final TextEditingController _ctrl = TextEditingController();
+  String? _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    final v = widget.value;
+    if (v == null || v.isEmpty) {
+      _selected = null;
+    } else if (widget.options.contains(v)) {
+      _selected = v;
+    } else {
+      _selected = _other;
+      _ctrl.text = v;
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  bool get _isOther => (_selected ?? '').toLowerCase() == _other.toLowerCase();
+
+  void _emitOther() {
+    final text = _ctrl.text.trim();
+    widget.onChanged(text.isEmpty ? _other : text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DropdownButtonFormField<String>(
+            value: widget.options.contains(_selected) ? _selected : null,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: widget.label,
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+            ),
+            hint: Text(
+              'Select',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            items: widget.options
+                .map(
+                  (opt) => DropdownMenuItem<String>(
+                    value: opt,
+                    child: Text(opt, overflow: TextOverflow.ellipsis),
+                  ),
+                )
+                .toList(),
+            onChanged: (v) {
+              if (v == null) return;
+              setState(() => _selected = v);
+              if (_isOther) {
+                _emitOther();
+              } else {
+                widget.onChanged(v);
+              }
+            },
+          ),
+          if (_isOther) ...[
+            const SizedBox(height: 10),
+            TextField(
+              controller: _ctrl,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
+                labelText: 'Please specify',
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onChanged: (_) => _emitOther(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}

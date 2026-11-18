@@ -16,7 +16,8 @@ class MediaService {
     return _picker.pickImage(
       source: ImageSource.camera,
       preferredCameraDevice: CameraDevice.rear,
-      imageQuality: 85,
+      maxWidth: 1280,
+      imageQuality: 80,
       requestFullMetadata: false,
     );
   }

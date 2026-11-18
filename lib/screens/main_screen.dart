@@ -6,8 +6,8 @@ import '../services/notification_router.dart';
 import '../widgets/app_top_bar.dart';
 import 'home_tab.dart';
 import 'settings_screen.dart';
-import 'verification_list_screen.dart';
-import 'verified_addresses_screen.dart';
+// import 'verification_list_screen.dart';
+// import 'verified_addresses_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,14 +17,30 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  static const _titles = ['Welcome Back', 'Activity', 'Reports', 'Settings'];
+  // static const _titles = ['Welcome Back', 'Activity', 'Reports', 'Settings'];
+  static const _titles = ['Welcome Back'];
 
+  // static const _screens = [
+  //   HomeTab(),
+  //   VerificationListScreen(title: 'Activity', embedded: true),
+  //   VerifiedAddressesScreen(embedded: true),
+  //   SettingsScreen(),
+  // ];
   static const _screens = [
     HomeTab(),
-    VerificationListScreen(title: 'Activity', embedded: true),
-    VerifiedAddressesScreen(embedded: true),
-    SettingsScreen(),
   ];
+
+  void _openSettings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const Scaffold(
+          appBar: AppTopBar(title: 'Settings', showBack: true),
+          body: SettingsScreen(),
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -48,65 +64,77 @@ class _MainScreenState extends State<MainScreen> {
       builder: (context, name, child) {
         return ValueListenableBuilder<int>(
           valueListenable: AppSettings.instance.homeTabIndex,
-          builder: (context, index, child) {
-            const selectedColor = Color(0xFF6366F1);
-            final unselectedColor = theme.colorScheme.onSurfaceVariant;
-
-            Widget navIcon(IconData icon, {required bool selected}) => HugeIcon(
-                  icon: icon,
-                  color: selected ? selectedColor : unselectedColor,
-                  size: 26,
-                );
+          builder: (context, rawIndex, child) {
+            final index = rawIndex < _screens.length ? rawIndex : 0;
+            // const selectedColor = Color(0xFF6366F1);
+            // final unselectedColor = theme.colorScheme.onSurfaceVariant;
+            //
+            // Widget navIcon(IconData icon, {required bool selected}) => HugeIcon(
+            //       icon: icon,
+            //       color: selected ? selectedColor : unselectedColor,
+            //       size: 26,
+            //     );
 
             return Scaffold(
               appBar: AppTopBar(
                 title: _titles[index],
                 subtitle: index == 0 && name.trim().isNotEmpty ? name : null,
-                actions: const [NotificationBell()],
+                actions: [
+                  const NotificationBell(),
+                  IconButton(
+                    tooltip: 'Settings',
+                    onPressed: () => _openSettings(context),
+                    icon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedSettings02,
+                      color: theme.colorScheme.onSurface,
+                      size: 26,
+                    ),
+                  ),
+                ],
               ),
               body: IndexedStack(
                 index: index,
                 children: _screens,
               ),
-              bottomNavigationBar: NavigationBar(
-                selectedIndex: index,
-                onDestinationSelected: (i) {
-                  AppSettings.instance.homeTabIndex.value = i;
-                },
-                backgroundColor: theme.colorScheme.surface,
-                indicatorColor: Colors.transparent,
-                elevation: 3,
-                destinations: [
-                  NavigationDestination(
-                    icon: navIcon(HugeIcons.strokeRoundedHome03,
-                        selected: false),
-                    selectedIcon:
-                        navIcon(HugeIcons.strokeRoundedHome03, selected: true),
-                    label: 'Home',
-                  ),
-                  NavigationDestination(
-                    icon: navIcon(HugeIcons.strokeRoundedActivity01,
-                        selected: false),
-                    selectedIcon: navIcon(HugeIcons.strokeRoundedActivity01,
-                        selected: true),
-                    label: 'Activity',
-                  ),
-                  NavigationDestination(
-                    icon: navIcon(HugeIcons.strokeRoundedAnalytics01,
-                        selected: false),
-                    selectedIcon: navIcon(HugeIcons.strokeRoundedAnalytics01,
-                        selected: true),
-                    label: 'Reports',
-                  ),
-                  NavigationDestination(
-                    icon: navIcon(HugeIcons.strokeRoundedSettings02,
-                        selected: false),
-                    selectedIcon: navIcon(HugeIcons.strokeRoundedSettings02,
-                        selected: true),
-                    label: 'Settings',
-                  ),
-                ],
-              ),
+              // bottomNavigationBar: NavigationBar(
+              //   selectedIndex: index,
+              //   onDestinationSelected: (i) {
+              //     AppSettings.instance.homeTabIndex.value = i;
+              //   },
+              //   backgroundColor: theme.colorScheme.surface,
+              //   indicatorColor: Colors.transparent,
+              //   elevation: 3,
+              //   destinations: [
+              //     NavigationDestination(
+              //       icon: navIcon(HugeIcons.strokeRoundedHome03,
+              //           selected: false),
+              //       selectedIcon:
+              //           navIcon(HugeIcons.strokeRoundedHome03, selected: true),
+              //       label: 'Home',
+              //     ),
+              //     NavigationDestination(
+              //       icon: navIcon(HugeIcons.strokeRoundedActivity01,
+              //           selected: false),
+              //       selectedIcon: navIcon(HugeIcons.strokeRoundedActivity01,
+              //           selected: true),
+              //       label: 'Activity',
+              //     ),
+              //     NavigationDestination(
+              //       icon: navIcon(HugeIcons.strokeRoundedAnalytics01,
+              //           selected: false),
+              //       selectedIcon: navIcon(HugeIcons.strokeRoundedAnalytics01,
+              //           selected: true),
+              //       label: 'Reports',
+              //     ),
+              //     NavigationDestination(
+              //       icon: navIcon(HugeIcons.strokeRoundedSettings02,
+              //           selected: false),
+              //       selectedIcon: navIcon(HugeIcons.strokeRoundedSettings02,
+              //           selected: true),
+              //       label: 'Settings',
+              //     ),
+              //   ],
+              // ),
             );
           },
         );

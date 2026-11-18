@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import '../models/verification_case.dart';
 import '../services/geocoding_service.dart';
 import '../services/location_service.dart';
 import '../services/media_service.dart';
+import '../services/permission_service.dart';
 import '../services/verification_store.dart';
 import 'geotag/geotag_capture_screen.dart';
 import 'geotag/geotag_data.dart';
@@ -24,6 +26,7 @@ class VerificationMediaScreen extends StatefulWidget {
 class _VerificationMediaScreenState extends State<VerificationMediaScreen> {
   final LocationService _locationService = LocationService();
   final MediaService _mediaService = MediaService();
+  final PermissionService _permissions = PermissionService();
 
   bool _attaching = false;
   int? _activeGroupIndex;
@@ -59,6 +62,19 @@ class _VerificationMediaScreenState extends State<VerificationMediaScreen> {
         (lng - group.longitude!).abs() < 0.00015;
   }
 
+  Future<_GeoFix?> _fetchFix() async {
+    try {
+      final position = await _locationService.getCurrentPosition();
+      if (position == null) return null;
+      final geo = await GeocodingService.instance
+          .reverseGeocode(position.latitude, position.longitude)
+          .timeout(const Duration(seconds: 6), onTimeout: () => null);
+      return _GeoFix(position, geo);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _addPhoto({int? groupIndex}) async {
     if (_attaching) return;
     setState(() {
@@ -66,19 +82,23 @@ class _VerificationMediaScreenState extends State<VerificationMediaScreen> {
       _locationError = null;
     });
     try {
+      // If location permission is already granted, fetch GPS + address while
+      // the camera is open so nothing waits after the shot.
+      Future<_GeoFix?>? prefetch;
+      if (await _permissions.hasLocationPermission()) {
+        prefetch = _fetchFix();
+      }
+
       final file = await _mediaService.capturePhoto();
       if (file == null || !mounted) return;
 
-      final position = await _locationService.getCurrentPosition();
+      final fix = await (prefetch ?? _fetchFix());
+      final position = fix?.position;
       if (!mounted) return;
 
       String savedPath = file.path;
       if (position != null) {
-        final geo = await GeocodingService.instance.reverseGeocode(
-          position.latitude,
-          position.longitude,
-        );
-        if (!mounted) return;
+        final geo = fix!.geo;
 
         final composedPath = await Navigator.of(context).push<String>(
           MaterialPageRoute(
@@ -654,4 +674,10 @@ class _ActionButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class _GeoFix {
+  final Position position;
+  final GeoAddress? geo;
+  const _GeoFix(this.position, this.geo);
 }
